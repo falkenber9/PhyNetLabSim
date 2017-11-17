@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scave:Analysis xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:scave="http://www.omnetpp.org/omnetpp/scave">
+  <inputs>
+    <inputs name="/IEEE802154INET-Standalone/simulations/results/MAC-standard-*.vec"/>
+    <inputs name="/IEEE802154INET-Standalone/simulations/results/MAC-standard-*.sca"/>
+    <inputs name="/IEEE802154INET-Standalone/simulations/results/MAC-optCSMA-*.sca"/>
+    <inputs name="/IEEE802154INET-Standalone/simulations/results/MAC-optCSMA-*.vec"/>
+  </inputs>
+  <datasets>
+    <datasets name="troughput">
+      <items xsi:type="scave:Add" filterPattern="module(*.AccessPoint.*) AND (rcvdPk:count) AND  attr:experiment(MAC-standard) "/>
+      <items xsi:type="scave:Discard" filterPattern="**"/>
+      <items xsi:type="scave:Add" filterPattern="module(*.AccessPoint.*)  AND (rcvdPk:count) AND attr:experiment(MAC-optCSMA) "/>
+      <items xsi:type="scave:Discard" filterPattern="**"/>
+      <items xsi:type="scave:Add" filterPattern="name(sentPk:count) OR  name(rcvdPk:count) OR net.numHosts"/>
+      <items xsi:type="scave:Group" name="troughput">
+        <items xsi:type="scave:ComputeScalar" scalarName="sentPkBoxesSum" valueExpr="sum('sentPk:count')" moduleExpr="net" groupByExpr="">
+          <filters xsi:type="scave:Select" filterPattern="module(*.Box[*].*) AND name(sentPk:count)"/>
+        </items>
+        <items xsi:type="scave:ComputeScalar" scalarName="throughputBoxes2AP" valueExpr="*.AccessPoint.*.'rcvdPk:count' / net.'sentPkBoxesSum'" moduleExpr="net" groupByExpr="" averageReplications="true">
+          <filters xsi:type="scave:Select" filterPattern="module(*.AccessPoint.*) AND name(rcvdPk:count) OR name(sentPkBoxesSum)"/>
+        </items>
+        <items xsi:type="scave:ComputeScalar" scalarName="rcvdPkBoxesMean" valueExpr="mean('rcvdPk:count')" moduleExpr="net" groupByExpr="">
+          <filters xsi:type="scave:Select" filterPattern="module(*.Box[*].*) AND name(rcvdPk:count)"/>
+        </items>
+        <items xsi:type="scave:ComputeScalar" scalarName="throughputAP2Boxes" valueExpr="net.'rcvdPkBoxesMean'  / *.AccessPoint.*.'sentPk:count' " moduleExpr="net" groupByExpr="" averageReplications="true">
+          <filters xsi:type="scave:Select" filterPattern="module(*.AccessPoint.*) AND name(sentPk:count) OR name(rcvdPkBoxesMean)"/>
+        </items>
+        <items xsi:type="scave:BarChart" name="Throuput Standard">
+          <filters xsi:type="scave:Select" filterPattern="(name(throughputBoxes2AP) ) AND  attr:experiment(MAC-standard) "/>
+          <properties name="Graph.Title" value="Throuput Standard"/>
+          <properties name="Y.Axis.Title" value="Troughput T"/>
+          <properties name="Legend.Display" value="true"/>
+          <properties name="Legend.Border" value="true"/>
+          <properties name="Legend.Position" value="Below"/>
+          <properties name="Bar.Placement" value="Overlap"/>
+          <groupByFields>module</groupByFields>
+          <groupByFields>experiment</groupByFields>
+          <groupByFields>measurement</groupByFields>
+          <barFields>name</barFields>
+          <averagedFields>replication</averagedFields>
+          <averagedFields>run</averagedFields>
+        </items>
+        <items xsi:type="scave:BarChart" name="Throuput opt.CSMA">
+          <filters xsi:type="scave:Select" filterPattern="(name(throughputBoxes2AP)) AND  attr:experiment(MAC-optCSMA) "/>
+          <properties name="Graph.Title" value="Throuput maxBE"/>
+          <properties name="Y.Axis.Title" value="Troughput T"/>
+          <properties name="Legend.Display" value="true"/>
+          <properties name="Legend.Border" value="true"/>
+          <properties name="Legend.Position" value="Below"/>
+          <properties name="Bar.Placement" value="Overlap"/>
+          <groupByFields>measurement</groupByFields>
+          <barFields>module</barFields>
+          <barFields>experiment</barFields>
+          <barFields>name</barFields>
+        </items>
+      </items>
+      <items xsi:type="scave:Discard" filterPattern="**"/>
+      <items xsi:type="scave:Add" filterPattern="name(numCollided:stats:*)"/>
+      <items xsi:type="scave:Group" name="collisions">
+        <items xsi:type="scave:BarChart" name="Collisions at AP">
+          <filters xsi:type="scave:Select" filterPattern="module(*.AccessPoint.*) AND (    (numCollided:stats:count)   )"/>
+          <properties name="Graph.Title" value="Collisions at AP"/>
+          <properties name="Legend.Display" value="true"/>
+          <properties name="Legend.Border" value="true"/>
+          <properties name="Legend.Position" value="Below"/>
+          <properties name="Bar.Placement" value="Overlap"/>
+        </items>
+      </items>
+      <items xsi:type="scave:Discard" filterPattern="**"/>
+      <items xsi:type="scave:Add" filterPattern="module(*.Box[*].battery) AND name(totalEnergy:max) AND attr:experiment(MAC-standard) "/>
+      <items xsi:type="scave:Discard" filterPattern="**"/>
+      <items xsi:type="scave:Add" filterPattern="module(*.Box[*].battery) AND name(totalEnergy:max) AND attr:experiment(MAC-optCSMA) "/>
+      <items xsi:type="scave:Add" filterPattern="module(**.battery)"/>
+      <items xsi:type="scave:Group" name="energy">
+        <items xsi:type="scave:ComputeScalar" scalarName="meanEnergyBoxes" valueExpr="mean('totalEnergy:max')" moduleExpr="net" groupByExpr="" averageReplications="true">
+          <filters xsi:type="scave:Select" filterPattern="module(*.Box[*].battery) "/>
+        </items>
+        <items xsi:type="scave:ComputeScalar" scalarName="meanEnergyAccessPoint" valueExpr="'totalEnergy:max'" moduleExpr="net" groupByExpr="" averageReplications="true">
+          <filters xsi:type="scave:Select" filterPattern="module(*.AccessPoint.battery) "/>
+        </items>
+        <items xsi:type="scave:BarChart" name="Energy Compair">
+          <filters xsi:type="scave:Select" filterPattern="name(meanEnergyBoxes) "/>
+          <properties name="Graph.Title" value="Energy"/>
+          <properties name="Y.Axis.Title" value="Consumpted Energy [mWh]"/>
+          <properties name="Legend.Display" value="true"/>
+          <properties name="Legend.Border" value="true"/>
+          <properties name="Legend.Position" value="Below"/>
+          <properties name="Bars.Baseline" value="5.5"/>
+          <properties name="Bar.Placement" value="Overlap"/>
+          <groupByFields>measurement</groupByFields>
+          <barFields>module</barFields>
+          <barFields>experiment</barFields>
+          <barFields>name</barFields>
+          <averagedFields>replication</averagedFields>
+        </items>
+        <items xsi:type="scave:ComputeScalar" scalarName="maxEnergyBoxes" valueExpr="max('totalEnergy:max')" moduleExpr="net" groupByExpr="" averageReplications="true"/>
+        <items xsi:type="scave:BarChart" name="Maximal Energy Standard">
+          <filters xsi:type="scave:Select" filterPattern="(name(meanEnergyBoxes) OR name(**maxEnergyBoxes)) AND  attr:experiment(MAC-standard) "/>
+          <properties name="Graph.Title" value="Energy Standard"/>
+          <properties name="Y.Axis.Title" value="Consumpted Energy [mWh]"/>
+          <properties name="Legend.Display" value="true"/>
+          <properties name="Legend.Border" value="true"/>
+          <properties name="Legend.Position" value="Below"/>
+          <properties name="Bar.Placement" value="Overlap"/>
+          <groupByFields>measurement</groupByFields>
+          <barFields>module</barFields>
+          <barFields>experiment</barFields>
+          <barFields>name</barFields>
+        </items>
+        <items xsi:type="scave:BarChart" name="Maximal Energy opt.CSMA">
+          <filters xsi:type="scave:Select" filterPattern="(name(meanEnergyBoxes) OR name(**maxEnergyBoxes)) AND attr:experiment(MAC-optCSMA) "/>
+          <properties name="Graph.Title" value="Maximal Energy opt.CSMA"/>
+          <properties name="Legend.Display" value="true"/>
+          <properties name="Legend.Border" value="true"/>
+          <properties name="Legend.Position" value="Below"/>
+          <properties name="Bars.Baseline" value="5.5"/>
+          <properties name="Bar.Placement" value="Overlap"/>
+          <groupByFields>measurement</groupByFields>
+          <barFields>module</barFields>
+          <barFields>experiment</barFields>
+          <barFields>name</barFields>
+        </items>
+        <items xsi:type="scave:HistogramChart" name="">
+          <properties name="Graph.Title" value="test"/>
+        </items>
+      </items>
+      <items xsi:type="scave:Discard" filterPattern="**"/>
+      <items xsi:type="scave:Add" filterPattern="name(delay) AND module(*.AccessPoint.*) "/>
+      <items xsi:type="scave:Add" filterPattern="name(delay:stats:*) AND module(*.AccessPoint.*) "/>
+      <items xsi:type="scave:Add" filterPattern="module(net.AccessPoint.application) AND name(delay:histogram)" type="HISTOGRAM"/>
+      <items xsi:type="scave:Group" name="delay">
+        <items xsi:type="scave:BarChart" name="APtoApDelay">
+          <filters xsi:type="scave:Select" filterPattern="(name(delay:stats:max) OR name(delay:stats:mean)) AND module(*.AccessPoint.*)"/>
+          <properties name="Graph.Title" value="overall delay"/>
+          <properties name="Legend.Display" value="true"/>
+          <properties name="Legend.Border" value="true"/>
+          <properties name="Legend.Position" value="Below"/>
+          <properties name="Bar.Placement" value="Overlap"/>
+          <groupByFields>name</groupByFields>
+        </items>
+        <items xsi:type="scave:HistogramChart" name="">
+          <filters xsi:type="scave:Select" filterPattern="run(MAC-*-11-*) AND module(net.AccessPoint.application) AND name(delay:histogram)" type="HISTOGRAM"/>
+          <properties name="Graph.Title" value="Delay "/>
+          <properties name="X.Axis.Title" value="Delay [s]"/>
+          <properties name="Legend.Border" value="true"/>
+          <properties name="Legend.Position" value="Below"/>
+          <properties name="Hist.Data" value="Count"/>
+        </items>
+        <items xsi:type="scave:HistogramChart" name="Delay Standard">
+          <filters xsi:type="scave:Select" filterPattern="attr:configname(MAC-standard)" type="HISTOGRAM"/>
+          <properties name="Graph.Title" value="Delay Standard"/>
+          <properties name="Hist.Bar" value="Outline"/>
+          <properties name="Hist.Data" value="Count"/>
+          <properties name="Hist.ShowOverflowCell" value="true"/>
+        </items>
+        <items xsi:type="scave:HistogramChart" name="Delay opt. CSMA">
+          <filters xsi:type="scave:Select" filterPattern="attr:configname(MAC-optCSMA)" type="HISTOGRAM"/>
+          <properties name="Graph.Title" value="Delay opt. CSMA"/>
+          <properties name="Hist.Bar" value="Outline"/>
+          <properties name="Hist.Data" value="Count"/>
+        </items>
+      </items>
+      <items xsi:type="scave:Discard" filterPattern="**"/>
+      <items xsi:type="scave:Discard" filterPattern="" type="HISTOGRAM"/>
+      <items xsi:type="scave:Add" filterPattern="module(net.AccessPoint.application)  AND name(delay:vector) AND attr:experiment(MAC-standard) " type="VECTOR"/>
+      <items xsi:type="scave:Discard" filterPattern="" type="VECTOR"/>
+      <items xsi:type="scave:Add" filterPattern="module(net.AccessPoint.application)  AND name(delay:vector) AND attr:experiment(MAC-optCSMA) " type="VECTOR"/>
+    </datasets>
+  </datasets>
+  <chartSheets>
+    <chartSheets name="default" charts="//@datasets/@datasets.0/@items.5/@items.4 //@datasets/@datasets.0/@items.5/@items.5 //@datasets/@datasets.0/@items.14/@items.4 //@datasets/@datasets.0/@items.14/@items.5 //@datasets/@datasets.0/@items.14/@items.2 //@datasets/@datasets.0/@items.8/@items.0 //@datasets/@datasets.0/@items.19/@items.0 //@datasets/@datasets.0/@items.19/@items.2 //@datasets/@datasets.0/@items.19/@items.3 //@datasets/@datasets.0/@items.14/@items.6 //@datasets/@datasets.0/@items.19/@items.1"/>
+    <chartSheets name="Overview" charts="//@datasets/@datasets.0/@items.5/@items.4 //@datasets/@datasets.0/@items.5/@items.5 //@datasets/@datasets.0/@items.14/@items.4 //@datasets/@datasets.0/@items.14/@items.5 //@datasets/@datasets.0/@items.14/@items.2 //@datasets/@datasets.0/@items.8/@items.0 //@datasets/@datasets.0/@items.19/@items.2 //@datasets/@datasets.0/@items.19/@items.3"/>
+  </chartSheets>
+</scave:Analysis>
