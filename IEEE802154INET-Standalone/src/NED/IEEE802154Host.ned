@@ -1,6 +1,7 @@
 //
 // Copyright (C) 2013 Matti Schnurbusch (original code)
 // Copyright (C) 2015 Michael Kirsche   (ported for INET 2.x)
+// Copyright (C) 2017 Jens Drenhaus     (PhyNetLabSim adaptations)
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public License

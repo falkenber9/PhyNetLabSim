@@ -3,6 +3,7 @@
 // Based on the Mobility Framework's SnrEval by Marc Loebbers
 // Copyright (C) 2013 Matti Schnurbusch (original adaption for 802.15.4 model)
 // Copyright (C) 2015 Michael Kirsche   (clean-up, ported for INET 2.x)
+// Copyright (C) 2017 Jens Drenhaus     (PhyNetLabSim adaptations)
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public License
